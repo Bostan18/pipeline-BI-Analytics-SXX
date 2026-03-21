@@ -1,0 +1,9 @@
+venv/
+data/raw/
+data/processed/
+output/
+__pycache__/
+*.pyc
+*.db
+.env
+app(Si sauvegarde pc).py
