@@ -70,7 +70,7 @@ def charger_depuis_upload(cmd_bytes, cht_bytes, semaine):
         "t1"       : pd.read_excel(cht_buf, sheet_name="T1",
                                    engine="calamine"),
     }
-    kpis = calculer_kpis(df, semaine=semaine)
+    kpis = calculer_kpis(dfs, semaine=semaine)
     creer_base(dfs)
     return dfs, kpis
 
