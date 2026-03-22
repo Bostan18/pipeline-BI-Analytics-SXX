@@ -1,3 +1,4 @@
+# src/database.py
 import sqlite3
 import pandas as pd
 import sys
@@ -6,12 +7,21 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import PROCESSED, SEMAINE
 
-DB_PATH = PROCESSED / f"bi_{SEMAINE}.db"
-
+# Connexion globale réutilisable
+_conn = None
 
 def creer_base(dfs):
-    PROCESSED.mkdir(exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+    global _conn
+
+    # Sur Streamlit Cloud, PROCESSED n'existe pas -> mémoire
+    try:
+        PROCESSED.mkdir(parents=True, exist_ok=True)
+        db_path = str(PROCESSED / f"bi_{SEMAINE}.db")
+    except Exception:
+        db_path = ":memory:"
+
+    _conn = sqlite3.connect(db_path, check_same_thread=False)
+
     tables = {
         "commandes_locales"   : dfs["locaux"],
         "commandes_etrangeres": dfs["etrangers"],
@@ -30,19 +40,12 @@ def creer_base(dfs):
                     lambda x: str(x) if pd.notna(x) and
                     not isinstance(x, (str, int, float)) else x
                 )
-        df_sql.to_sql(nom, conn, index=False, if_exists="replace")
-    conn.close()
-    print(f"Base SQLite : {len(tables)} tables → {DB_PATH.name}")
+        df_sql.to_sql(nom, _conn, index=False, if_exists="replace")
 
+    print(f"Base SQLite : {len(tables)} tables chargées ({db_path})")
 
 def sql(requete):
-    # Connexion fraîche à chaque requête
-    conn = sqlite3.connect(DB_PATH)
-    result = pd.read_sql_query(requete, conn)
-    conn.close()
-    return result
-
-# --- Requêtes prêtes à l'emploi ---
+    return pd.read_sql_query(requete, _conn)
 
 def ca_par_service():
     return sql("""
