@@ -78,9 +78,6 @@ dfs, kpis = charger_depuis_upload(
     f_cmd.getvalue(), f_cht.getvalue(), semaine
 )
 
-# DEBUG — à supprimer après
-st.write("Semaine détectée :", semaine)
-st.write("Colonnes termines :", dfs["termines"].columns.tolist())
 
 col_n = f"Notes / Commentaires de {semaine}"
 
