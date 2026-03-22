@@ -5,7 +5,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import COL_NOTES
 
-def calculer_kpis(dfs):
+def calculer_kpis(dfs, semaine=None):
+    from config import COL_NOTES as COL_NOTES_DEFAULT
+    col_notes = f"Notes / Commentaires de {semaine.upper()}" \
+                if semaine else COL_NOTES_DEFAULT
 
     # --- Récupération depuis le dictionnaire ---
     df_ca  = dfs["ca"].copy()
@@ -42,7 +45,7 @@ def calculer_kpis(dfs):
 
     # --- KPI 4 : Projets 100% à facturation partielle ---
     nb_partiel = df_100[
-        df_100[COL_NOTES].str.contains("partielle", case=False, na=False)
+        df_100[col_notes].str.contains("partielle", case=False, na=False)
     ].shape[0]
 
     # --- KPI 5 : CA par service ---
